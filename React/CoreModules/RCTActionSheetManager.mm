@@ -89,6 +89,11 @@ RCT_EXPORT_METHOD(showActionSheetWithOptions
   NSNumber *anchor = [RCTConvert NSNumber:options.anchor() ? @(*options.anchor()) : nil];
   UIColor *tintColor = [RCTConvert UIColor:options.tintColor() ? @(*options.tintColor()) : nil];
 
+  NSArray<NSDictionary *> *icons = RCTConvertOptionalVecToArray(options.icons(), ^id(NSObject *element) {
+    return element;
+  });
+  BOOL tintIcons = options.tintIcons();
+
   if (controller == nil) {
     RCTLogError(@"Tried to display action sheet but there is no application window. options: %@", @{
       @"title" : title,
@@ -98,6 +103,8 @@ RCT_EXPORT_METHOD(showActionSheetWithOptions
       @"destructiveButtonIndices" : destructiveButtonIndices,
       @"anchor" : anchor,
       @"tintColor" : tintColor,
+      @"icons" : icons,
+      @"tintIcons" : @(tintIcons),
     });
     return;
   }
@@ -123,11 +130,21 @@ RCT_EXPORT_METHOD(showActionSheetWithOptions
     }
 
     NSInteger localIndex = index;
-    [alertController addAction:[UIAlertAction actionWithTitle:option
-                                                        style:style
-                                                      handler:^(__unused UIAlertAction *action) {
-                                                        callback(@[ @(localIndex) ]);
-                                                      }]];
+    UIAlertAction *action = [UIAlertAction actionWithTitle:option style:style handler:^(__unused UIAlertAction *action) {
+      callback(@[ @(localIndex) ]);
+    }];
+      
+    if (index < icons.count) {
+      UIImage *iconImage = [self iconImageFromDictionary:icons[index]];
+      if (iconImage) {
+        if (!tintIcons) {
+          iconImage = [iconImage imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+        }
+        [action setValue:iconImage forKey:@"image"];
+      }
+    }
+
+    [alertController addAction:action];
 
     index++;
   }
@@ -237,6 +254,26 @@ RCT_EXPORT_METHOD(showShareActionSheetWithOptions
                                                  perfLogger:(id<RCTTurboModulePerformanceLogger>)perfLogger
 {
   return std::make_shared<NativeActionSheetManagerSpecJSI>(self, jsInvoker, nativeInvoker, perfLogger);
+}
+
+- (nullable UIImage *)iconImageFromDictionary:(NSDictionary *)dictionary
+{
+  NSString *iconURLString = dictionary[@"uri"];
+  if (!iconURLString) {
+    return nil;
+  }
+  
+  NSURL *iconURL = [NSURL URLWithString:iconURLString];
+  if (!iconURL) {
+    return nil;
+  }
+  
+  NSData *iconData = [NSData dataWithContentsOfURL:iconURL];
+  if (!iconData) {
+    return nil;
+  }
+  
+  return [UIImage imageWithData:iconData];
 }
 
 @end
