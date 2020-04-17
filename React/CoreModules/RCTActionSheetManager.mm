@@ -130,9 +130,11 @@ RCT_EXPORT_METHOD(showActionSheetWithOptions
     }
 
     NSInteger localIndex = index;
-    UIAlertAction *action = [UIAlertAction actionWithTitle:option style:style handler:^(__unused UIAlertAction *action) {
-      callback(@[ @(localIndex) ]);
-    }];
+    UIAlertAction *action = [UIAlertAction actionWithTitle:option
+                                                     style:style
+                                                   handler:^(__unused UIAlertAction *action) {
+                                                     callback(@[ @(localIndex) ]);
+                                                   }];
       
     if (index < icons.count) {
       UIImage *iconImage = [self iconImageFromDictionary:icons[index]];
@@ -262,17 +264,14 @@ RCT_EXPORT_METHOD(showShareActionSheetWithOptions
   if (!iconURLString) {
     return nil;
   }
-  
   NSURL *iconURL = [NSURL URLWithString:iconURLString];
   if (!iconURL) {
     return nil;
   }
-  
   NSData *iconData = [NSData dataWithContentsOfURL:iconURL];
   if (!iconData) {
     return nil;
   }
-  
   return [UIImage imageWithData:iconData];
 }
 
