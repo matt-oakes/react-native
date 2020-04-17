@@ -92,7 +92,7 @@ RCT_EXPORT_METHOD(showActionSheetWithOptions
   NSArray<NSDictionary *> *icons = RCTConvertOptionalVecToArray(options.icons(), ^id(NSObject *element) {
     return element;
   });
-  BOOL tintIcons = options.tintIcons();
+  BOOL tintIcons = options.tintIcons() ? [RCTConvert BOOL:@(*options.tintIcons())] : YES;
 
   if (controller == nil) {
     RCTLogError(@"Tried to display action sheet but there is no application window. options: %@", @{

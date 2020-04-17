@@ -67,7 +67,6 @@ const ActionSheetIOS = {
       tintColor,
       destructiveButtonIndex,
       icons,
-      tintIcons,
       ...remainingOptions
     } = options;
     let destructiveButtonIndices = null;
@@ -90,17 +89,12 @@ const ActionSheetIOS = {
       processedIcons = icons.map(icon => resolveAssetSource(icon));
     }
 
-    // Default to true if null or undefined. Otherwise, use the boolean value provided
-    const processedTintIcons =
-      tintIcons === null || tintIcons === undefined ? true : !!tintIcons;
-
     RCTActionSheetManager.showActionSheetWithOptions(
       {
         ...remainingOptions,
         tintColor: processedTintColor,
         destructiveButtonIndices,
         icons: processedIcons,
-        tintIcons: processedTintIcons,
       },
       callback,
     );
